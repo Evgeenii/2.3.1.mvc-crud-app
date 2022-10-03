@@ -10,9 +10,12 @@ import java.util.List;
 
 @Repository
 public class UserDaoImp implements UserDao {
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    private SessionFactory sessionFactory;
+    public UserDaoImp(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Override
     public void add(User user) {
@@ -27,12 +30,12 @@ public class UserDaoImp implements UserDao {
     }
 
     @Override
-    public User getUserBy(String model, int series) {
+    public User getUserByModelAndSeries(String model, int series) {
         String getByModelAndSeries = "from User where " +
                                      "car.model = :model and " +
                                      "car.series = :series";
 
-       return (User) sessionFactory.getCurrentSession()
+        return (User) sessionFactory.getCurrentSession()
                 .createQuery(getByModelAndSeries)
                 .setParameter("model", model)
                 .setParameter("series", series)
