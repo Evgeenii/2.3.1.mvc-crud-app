@@ -1,4 +1,4 @@
-package hiber.model;
+package web.model;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -18,10 +18,6 @@ public class User {
 
     @Column(name = "email")
     private String email;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cars_id")
-    private Car car;
 
     public User() {
     }
@@ -64,13 +60,6 @@ public class User {
         this.email = email;
     }
 
-    public Car getCar() {
-        return car;
-    }
-
-    public void setCar(Car car) {
-        this.car = car;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -85,13 +74,12 @@ public class User {
         return Objects.equals(getId(), user.getId()) &&
                Objects.equals(getFirstName(), user.getFirstName()) &&
                Objects.equals(getLastName(), user.getLastName()) &&
-               Objects.equals(getEmail(), user.getEmail()) &&
-               Objects.equals(car, user.car);
+               Objects.equals(getEmail(), user.getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getFirstName(), getLastName(), getEmail(), car);
+        return Objects.hash(getId(), getFirstName(), getLastName(), getEmail());
     }
 
     @Override
@@ -101,7 +89,6 @@ public class User {
                ", firstName='" + firstName + '\'' +
                ", lastName='" + lastName + '\'' +
                ", email='" + email + '\'' +
-               ", car=" + car +
                '}';
     }
 }

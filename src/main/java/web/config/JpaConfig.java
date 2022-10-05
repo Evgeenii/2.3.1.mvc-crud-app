@@ -1,7 +1,6 @@
-package hiber.config;
+package web.config;
 
-import hiber.model.Car;
-import hiber.model.User;
+import web.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,12 +18,12 @@ import java.util.Properties;
 @Configuration
 @PropertySource("classpath:db.properties")
 @EnableTransactionManagement
-@ComponentScan(value = "hiber")
-public class AppConfig {
+@ComponentScan(value = "web")
+public class JpaConfig {
     private final Environment env;
 
     @Autowired
-    public AppConfig(Environment env) {
+    public JpaConfig(Environment env) {
         this.env = env;
     }
 
@@ -49,7 +48,7 @@ public class AppConfig {
         props.put("hibernate.dialect", env.getProperty("hibernate.dialect"));
 
         factoryBean.setHibernateProperties(props);
-        factoryBean.setAnnotatedClasses(User.class, Car.class);
+        factoryBean.setAnnotatedClasses(User.class);
         return factoryBean;
     }
 
