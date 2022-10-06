@@ -1,6 +1,7 @@
+/*
 package web;
 
-import web.config.JpaConfig;
+import web.config.HibernateConfig;
 import web.model.User;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import web.service.UserService;
@@ -11,7 +12,7 @@ import java.util.List;
 public class MainApp {
     public static void main(String[] args) throws SQLException {
         AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(JpaConfig.class);
+                new AnnotationConfigApplicationContext(HibernateConfig.class);
 
         UserService userService = context.getBean(UserService.class);
 
@@ -39,3 +40,4 @@ public class MainApp {
         context.close();
     }
 }
+*/

@@ -37,7 +37,7 @@ public class UserController {
         return "user-create-page";
     }
 
-    @GetMapping("/delete}")
+    @GetMapping("/users-truncate")
     public String truncateTable(){
         userService.truncateTable();
         return "users-page";

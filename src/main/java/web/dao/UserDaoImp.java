@@ -1,58 +1,56 @@
 package web.dao;
 
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import web.model.User;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Repository
 public class UserDaoImp implements UserDao {
-    private final SessionFactory sessionFactory;
+    private EntityManager entityManager;
 
-    @Autowired
-    public UserDaoImp(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
-
 
     @Override
     public void saveUser(User user) {
-        sessionFactory.getCurrentSession()
-                .save(user);
+        entityManager.persist(user);
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = sessionFactory.getCurrentSession();
-        User user = session.load(User.class, id);
-        session.delete(user);
+        User user = entityManager.find(User.class, id);
+        entityManager.remove(user);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("from User", User.class)
-                .list();
+        return entityManager.createQuery("from User", User.class)
+                .getResultList();
+
     }
 
     @Override
     public void updateUser(User user) {
-        sessionFactory.getCurrentSession().update(user);
+        entityManager.merge(user);
     }
 
     @Override
     public User getUserById(long id) {
-        return sessionFactory.getCurrentSession()
-                .get(User.class, id);
+        User user = entityManager.find(User.class, id);
+        entityManager.detach(user);
+        return user;
     }
 
     @Override
     public void truncateTable() {
-        sessionFactory.getCurrentSession()
-                .createNativeQuery("TRUNCATE TABLE users;")
+        entityManager.createNativeQuery("TRUNCATE TABLE users;")
                 .executeUpdate();
     }
 }
