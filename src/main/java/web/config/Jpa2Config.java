@@ -3,10 +3,7 @@ package web.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -28,11 +25,10 @@ import java.util.Properties;
 @Configuration
 @PropertySource("classpath:db.properties")
 public class Jpa2Config {
-
     private final Environment env;
 
     @Autowired
-    public Jpa2Config(ApplicationContext applicationContext, Environment env) {
+    public Jpa2Config(Environment env) {
         this.env = env;
     }
 
@@ -46,7 +42,7 @@ public class Jpa2Config {
         return dataSource;
     }
 
-    @Bean
+    @Bean(name = "entityManager")
     public EntityManagerFactory entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setPackagesToScan("web.model");
@@ -58,19 +54,19 @@ public class Jpa2Config {
         return factoryBean.getNativeEntityManagerFactory();
     }
 
+    @Bean(name = "transactionManager")
+    public JpaTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory());
+        return transactionManager;
+    }
+
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
         properties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
         properties.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         return properties;
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory());
-        return transactionManager;
     }
 
     @Bean

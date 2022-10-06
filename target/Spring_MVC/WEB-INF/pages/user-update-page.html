@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <meta charset="UTF-8">
-<title>Create user</title>
+<title>Обновить информацию</title>
 </head>
 <body>
-<h2>Update User</h2>
-
+<h2>Обновить информацию</h2>
 <form action="#" th:action="@{/user-update}" th:object="${user}" method="post">
-    <label for="id">ID</label>
+    <label for="id">Id</label>
     <input readonly type="number" th:field="*{id}" id="id" placeholder="ID">
-    <label for="firstName">First name</label>
+    <label for="firstName">Имя</label>
     <input type="text" th:field="*{firstName}" id="firstName" placeholder="First Name">
-    <label for="lastName">Last name</label>
+    <label for="lastName">Фамилия</label>
     <input type="text" th:field="*{lastName}" id="lastName" placeholder="Last Name">
-    <label for="email">Email</label>
+    <label for="email">Адрес почты</label>
     <input type="text" th:field="*{email}" id="email" placeholder="Email">
     <input type="submit" value="Update User">
 </form>
