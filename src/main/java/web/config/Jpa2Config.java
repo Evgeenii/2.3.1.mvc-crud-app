@@ -1,6 +1,8 @@
 package web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +12,6 @@ import org.springframework.dao.annotation.PersistenceExceptionTranslationPostPro
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,16 +22,17 @@ import javax.sql.DataSource;
 import java.util.Objects;
 import java.util.Properties;
 
-@Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories("web.dao")
+@ComponentScan(basePackages = {"web.service"})
+@Configuration
 @PropertySource("classpath:db.properties")
 public class Jpa2Config {
 
     private final Environment env;
 
     @Autowired
-    public Jpa2Config(Environment env) {
+    public Jpa2Config(ApplicationContext applicationContext, Environment env) {
         this.env = env;
     }
 
@@ -45,7 +47,18 @@ public class Jpa2Config {
     }
 
     @Bean
-    public Properties hibernateProperties() {
+    public EntityManagerFactory entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setPackagesToScan("web.model");
+        factoryBean.setDataSource(getDataSource());
+        factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factoryBean.setJpaProperties(hibernateProperties());
+        factoryBean.setJpaVendorAdapter(factoryBean.getJpaVendorAdapter());
+        factoryBean.afterPropertiesSet();
+        return factoryBean.getNativeEntityManagerFactory();
+    }
+
+    private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
         properties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
@@ -54,28 +67,14 @@ public class Jpa2Config {
     }
 
     @Bean
-    public JpaVendorAdapter getJpaVendorAdapter() {
-        return new HibernateJpaVendorAdapter();
+    public PlatformTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory());
+        return transactionManager;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean getEntityManagerFactory() {
-        final LocalContainerEntityManagerFactoryBean factoryBean =
-                new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setDataSource(getDataSource());
-        factoryBean.setPackagesToScan("web.model");
-        factoryBean.setJpaVendorAdapter(getJpaVendorAdapter());
-        factoryBean.setJpaProperties(hibernateProperties());
-        return factoryBean;
-    }
-
-    @Bean
-    public PlatformTransactionManager getTransactionManager() {
-        return new JpaTransactionManager((EntityManagerFactory) getEntityManagerFactory());
-    }
-
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
+    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 }
