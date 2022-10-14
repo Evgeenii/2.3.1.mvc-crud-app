@@ -21,7 +21,6 @@ import java.util.Properties;
 
 @EnableTransactionManagement
 @EnableJpaRepositories("web.dao")
-@ComponentScan(basePackages = {"web.service"})
 @Configuration
 @PropertySource("classpath:db.properties")
 public class Jpa2Config {
@@ -54,19 +53,19 @@ public class Jpa2Config {
         return factoryBean.getNativeEntityManagerFactory();
     }
 
-    @Bean(name = "transactionManager")
-    public JpaTransactionManager transactionManager() {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory());
-        return transactionManager;
-    }
-
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", env.getRequiredProperty("hibernate.dialect"));
         properties.put("hibernate.show_sql", env.getRequiredProperty("hibernate.show_sql"));
         properties.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         return properties;
+    }
+
+    @Bean(name = "transactionManager")
+    public PlatformTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory());
+        return transactionManager;
     }
 
     @Bean
